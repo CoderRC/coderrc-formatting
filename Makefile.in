@@ -1,0 +1,27 @@
+srcdir=@srcdir@
+VPATH=$(srcdir):bin
+
+prefix=@prefix@
+
+EXEEXT=@EXEEXT@
+
+CC=@CC@
+DEFS=@DEFS@
+CPPFLAGS=@CPPFLAGS@
+CFLAGS=@CFLAGS@
+LDFLAGS=@LDFLAGS@
+CLANGFORMATSTR=$$(sed -e ':a' -e '$$!{N;ba' -e '}' -e 's/\\/\\\\/g' -e 's/\n/\\n/g' -e 's/"/\\\"/g' $(srcdir)/.clang-format)
+
+all: compile_coderrc_formatting
+
+compile_coderrc_formatting: bin bin/coderrc-formatting$(EXEEXT)
+
+bin/coderrc-formatting$(EXEEXT): source/main.c
+	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) "-DCLANGFORMATSTR=\"$(CLANGFORMATSTR)\"" $< -o $@ $(LDFLAGS)
+
+bin:
+	mkdir -p $@
+
+install:
+	test -z "$(prefix)/bin" || mkdir -p "$(prefix)/bin"
+	cp -R bin/* "$(prefix)/bin"
